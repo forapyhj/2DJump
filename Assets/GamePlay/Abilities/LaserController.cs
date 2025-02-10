@@ -46,15 +46,16 @@ public class LaserController : MonoBehaviour
 				}
 				_moveTimer = 0f;
 			}				
-			startPoint.Translate(config._moveDirection * config.moveSpeed * Time.deltaTime);
-			endPoint.Translate(config._moveDirection * config.moveSpeed * Time.deltaTime);
+			//startPoint.Translate(config._moveDirection * config.moveSpeed * Time.deltaTime);
+			//endPoint.Translate(config._moveDirection * config.moveSpeed * Time.deltaTime);
+			transform.Translate(config._moveDirection * config.moveSpeed * Time.deltaTime);
 			UpdateLaserPositions();
 		}
 	}
 	void UpdateLaserPositions()
 	{
 		lineRenderer.SetPosition(0, startPoint.position);
-		lineRenderer.SetPosition(1, endPoint.position);
+        lineRenderer.SetPosition(1, endPoint.position);
 	}
     void InitializeLaser()
     {
@@ -73,9 +74,10 @@ public class LaserController : MonoBehaviour
         lineRenderer.SetPosition(1, endPos);
 
         float length = Vector3.Distance(startPos, endPos);
-        laserCollider.size = new Vector2(length, config.width);
+        if(config._moveDirection.x == 0) laserCollider.size = new Vector2(length, config.width);
+		else if(config._moveDirection.y ==0) laserCollider.size = new Vector2(config.width, length);
         laserCollider.transform.position = (startPos + endPos) / 2;
-        laserCollider.transform.right = (endPos - startPos).normalized;
+		//laserCollider.transform.right = (endPos - startPos).normalized;
     }
 
     System.Collections.IEnumerator LaserCycle()

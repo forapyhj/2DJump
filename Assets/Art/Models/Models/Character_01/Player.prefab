@@ -828,7 +828,7 @@ MonoBehaviour:
   coyoteTime: 0.15
   maxAirJumps: 1
   climbSpeed: 4
-  climbCheckSize: 0.5
+  climbCheckSize: 0.2
   climbableLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -836,7 +836,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   groundCheck: {fileID: 2466365905777321948}
-  groundCheckSize: 0.5
+  groundCheckSize: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 2560

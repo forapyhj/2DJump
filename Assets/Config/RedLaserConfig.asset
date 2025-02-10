@@ -19,3 +19,7 @@ MonoBehaviour:
   interval: 1
   width: 0.2
   laserMaterial: {fileID: 2100000, guid: c2ef83fe961e3a04aa27257478321377, type: 2}
+  isMoving: 0
+  moveSpeed: 2
+  _moveDirection: {x: 0, y: 0}
+  maxMoveTime: 0
