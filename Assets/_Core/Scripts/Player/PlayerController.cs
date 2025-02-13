@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
-public class AdvancedPlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
 	#region Parameters
     [Header("Movement")]
@@ -93,7 +93,7 @@ public class AdvancedPlayerController : MonoBehaviour
         if (_isClimbing) return;
 
         float targetSpeed = _moveInput.x * moveSpeed;
-        float accelerationRate = _isGrounded ? acceleration : acceleration * airControl;
+        float accelerationRate = IsGrounded ? acceleration : acceleration * airControl;
         _rb.linearVelocity = new Vector2(
             Mathf.Lerp(_rb.linearVelocity.x, targetSpeed, accelerationRate), _rb.linearVelocity.y);
 
@@ -101,11 +101,11 @@ public class AdvancedPlayerController : MonoBehaviour
     private void HandleJump()
     {
 		if(!_canJump) return;
-        if (_jumpBufferCounter > 0 && (_isGrounded || _coyoteTimeCounter > 0 || _airJumpCount < maxAirJumps))
+        if (_jumpBufferCounter > 0 && (IsGrounded || _coyoteTimeCounter > 0 || _airJumpCount < maxAirJumps))
         {
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
             _jumpBufferCounter = 0;
-            if (!_isGrounded && _coyoteTimeCounter <= 0)
+            if (!IsGrounded && _coyoteTimeCounter <= 0)
                 _airJumpCount++;
         }
 		else
@@ -121,9 +121,9 @@ public class AdvancedPlayerController : MonoBehaviour
 	private void HandleJumpBuffer()
     {
         _jumpBufferCounter = _isJumpPressed ? jumpBufferTime : _jumpBufferCounter - Time.deltaTime;
-        _coyoteTimeCounter = _isGrounded ? coyoteTime : _coyoteTimeCounter - Time.deltaTime;
+        _coyoteTimeCounter = IsGrounded ? coyoteTime : _coyoteTimeCounter - Time.deltaTime;
         
-        if (_isGrounded && _rb.linearVelocity.y <= 0)
+        if (IsGrounded && _rb.linearVelocity.y <= 0)
 		{
             _airJumpCount = 0;
 		}
@@ -142,14 +142,14 @@ public class AdvancedPlayerController : MonoBehaviour
 		// 获取圆形范围内的站立平台
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, climbCheckSize, climbableLayer);
 		//如果与爬杆相接触或者在平台上向下爬
-		if(_isReadyClimb && ((!_isTop && _moveInput.y > 0.1f) || _moveInput.y < -0.1f || !_isGrounded))
+		if(_isReadyClimb && ((!_isTop && _moveInput.y > 0.1f) || _moveInput.y < -0.1f || !IsGrounded))
 		{
 			//将角色位于的站立平台设为触发器
 			_ladderTopPlatform = hitColliders[0].transform.GetChild(0).GetComponent<Collider2D>();
 			EnterClimbing();
 		}
 		//角色处于站立平台或地板时
-		else if(_isClimbing && (_isTop || _isGrounded))
+		else if(_isClimbing && (_isTop || IsGrounded))
 		{ 
 			ExitClimbing();
 			return;
@@ -199,9 +199,10 @@ public class AdvancedPlayerController : MonoBehaviour
 		_isReadyClimb = Physics2D.OverlapCircleAll(transform.position, climbCheckSize, climbableLayer).Length > 0;
 		//检测是否在站立平台上
 		_isTop = Physics2D.OverlapCircleAll(groundCheck.position, groundCheckSize, ladderLayer).Length > 0;
-		_isGrounded = Physics2D.OverlapCircleAll(groundCheck.position, groundCheckSize, groundLayer).Length > 0;
+		IsGrounded = Physics2D.OverlapCircleAll(groundCheck.position, groundCheckSize, groundLayer).Length > 0;
 	}
-    private bool _isGrounded;
+
+	public bool IsGrounded { get; private set; }
 	private bool _isTop;
     private void OnEnable() => _input.Enable();
     private void OnDisable() => _input.Disable();

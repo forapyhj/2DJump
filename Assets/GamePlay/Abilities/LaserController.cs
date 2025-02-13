@@ -10,13 +10,13 @@ public class LaserController : MonoBehaviour
     public Transform startPoint;
     public Transform endPoint;
 
-    private bool isActive = false;
+    private bool _isActive;
 
     void Start()
     {
         InitializeLaser();
 		            
-		if(config.isMoving) ActivateLaser(true);
+		if(config.isMoving){ ActivateLaser(true);}
 		else StartCoroutine(LaserCycle());
     }
 	private float _moveTimer;
@@ -28,27 +28,25 @@ public class LaserController : MonoBehaviour
 			_moveTimer += Time.deltaTime;
 			if(_moveTimer > config.maxMoveTime) 
 			{
-				if(config._moveDirection == Vector2.right)
+				if(config.moveDirection == Vector2.right)
 				{
-					config._moveDirection = Vector2.left;
+					config.moveDirection = Vector2.left;
 				}
-				else if(config._moveDirection == Vector2.left)
+				else if(config.moveDirection == Vector2.left)
 				{
-					config._moveDirection = Vector2.right;
+					config.moveDirection = Vector2.right;
 				}
-				else if(config._moveDirection == Vector2.up)
+				else if(config.moveDirection == Vector2.up)
 				{
-					config._moveDirection = Vector2.down;
+					config.moveDirection = Vector2.down;
 				}
-				else if(config._moveDirection == Vector2.down)
+				else if(config.moveDirection == Vector2.down)
 				{
-					config._moveDirection = Vector2.up;
+					config.moveDirection = Vector2.up;
 				}
 				_moveTimer = 0f;
 			}				
-			//startPoint.Translate(config._moveDirection * config.moveSpeed * Time.deltaTime);
-			//endPoint.Translate(config._moveDirection * config.moveSpeed * Time.deltaTime);
-			transform.Translate(config._moveDirection * config.moveSpeed * Time.deltaTime);
+			transform.Translate(config.moveDirection * (config.moveSpeed * Time.deltaTime));
 			UpdateLaserPositions();
 		}
 	}
@@ -66,7 +64,7 @@ public class LaserController : MonoBehaviour
         lineRenderer.material = config.laserMaterial;
         lineRenderer.startColor = config.laserColor;
         lineRenderer.endColor = config.laserColor;
-
+		lineRenderer.material.color = config.laserColor;
 		// 初始化碰撞体大小和位置
         Vector3 startPos = startPoint.position;
         Vector3 endPos = endPoint.position;
@@ -74,8 +72,8 @@ public class LaserController : MonoBehaviour
         lineRenderer.SetPosition(1, endPos);
 
         float length = Vector3.Distance(startPos, endPos);
-        if(config._moveDirection.x == 0) laserCollider.size = new Vector2(length, config.width);
-		else if(config._moveDirection.y ==0) laserCollider.size = new Vector2(config.width, length);
+        if(config.moveDirection.x == 0) laserCollider.size = new Vector2(length, config.width);
+		else if(config.moveDirection.y ==0) laserCollider.size = new Vector2(config.width, length);
         laserCollider.transform.position = (startPos + endPos) / 2;
 		//laserCollider.transform.right = (endPos - startPos).normalized;
     }
@@ -84,15 +82,18 @@ public class LaserController : MonoBehaviour
     {
         while (true)
         {
+			lineRenderer.enabled = true;
             // 警告阶段（闪烁）
             yield return StartCoroutine(WarningEffect());
 
+			lineRenderer.material.color = config.laserColor;
             // 发射激光
             ActivateLaser(true);
             yield return new WaitForSeconds(config.duration);
 
             // 关闭激光
             ActivateLaser(false);
+			lineRenderer.enabled = false;
             yield return new WaitForSeconds(config.interval);
         }
     }
@@ -114,14 +115,13 @@ public class LaserController : MonoBehaviour
 
     void ActivateLaser(bool state)
     {
-        isActive = state;
-        lineRenderer.enabled = state;
+        _isActive = state;
         laserCollider.enabled = state;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (isActive && other.CompareTag("Player"))
+        if (_isActive && other.CompareTag("Player"))
         {
             other.GetComponent<PlayerHealth>().TakeDamage(config.damage);
         }

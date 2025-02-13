@@ -4,22 +4,22 @@ public class PlayerHealth: MonoBehaviour
 {
     public float invincibleTime = 1f;
 	public int maxHealth = 3;
-	public AdvancedPlayerController player;
-    private float currentHealth;
-    private bool isInvincible;
+	public PlayerController player;
+    private float _currentHealth;
+    private bool _isInvincible;
 
     private void Start()
     {
-		player = GetComponent<AdvancedPlayerController>();
-        currentHealth = maxHealth;
+		player = GetComponent<PlayerController>();
+        _currentHealth = maxHealth;
     }
 
     public void TakeDamage(float damage)
     {
-        if (isInvincible) return;
+        if (_isInvincible) return;
 
-        currentHealth -= damage;
-        if (currentHealth <= 0)
+        _currentHealth -= damage;
+        if (_currentHealth <= 0)
         {
             StartCoroutine(Death());
         }
@@ -31,9 +31,9 @@ public class PlayerHealth: MonoBehaviour
     }
     IEnumerator InvincibilityFrame()
     {
-        isInvincible = true;
+        _isInvincible = true;
         yield return new WaitForSeconds(invincibleTime);
-        isInvincible = false;
+        _isInvincible = false;
     }
 	
 	IEnumerator Death()
